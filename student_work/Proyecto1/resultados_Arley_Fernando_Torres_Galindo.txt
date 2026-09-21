@@ -1,0 +1,194 @@
+EVALUACION - Data Stream Processor
+============================================================
+Estudiante : Arley Fernando Torres Galindo
+Fecha      : 2026-09-21 19:53:09
+Python     : 3.12.13 (Linux)
+Evaluador  : v1.1
+Clase      : DataProcessor (modulo __main__)
+
+== Interfaz y restricciones ==
+
+[PASS ] Define add, process_next, undo, pending y current_value
+[FAIL ] Se puede crear DataProcessor() sin argumentos
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] __init__ crea una ArrayQueue, un ArrayStack y una list
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] No sustituye Queue/Stack por deque u otra estructura
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] ArrayQueue y ArrayStack son las del curso (no reimplementadas)
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+
+   Interfaz y restricciones: 1/5 OK
+
+== Pruebas obligatorias (1-17) ==
+
+[FAIL ] 1. pending() sobre un procesador vacio
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 2. Agregar un registro
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 3. Agregar varios registros
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 4. Procesamiento FIFO
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 5. Procesar un registro
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 6. Procesar varios registros
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 7. Actualizar una variable existente
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 8. Consultar el valor actual
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 9. Realizar un undo()
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 10. Varios undo() consecutivos
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 11. process_next() con la Queue vacia -> Empty
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 12. undo() con historial vacio -> Empty
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 13. Deshacer la creacion de un dato que no existia
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 14. Varios cambios sobre la misma variable
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 15. add() con formato incorrecto
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 16. add() con value no numerico
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] 17. current_value() de un sensor/variable nunca procesado -> KeyError
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+
+   Pruebas obligatorias (1-17): 0/17 OK
+
+== Casos borde adicionales ==
+
+[FAIL ] undo de una creacion entre actualizaciones de otra variable
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] Sensores y variables distintos no se mezclan
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] Acepta int y float; sigue funcionando tras un Empty
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+
+   Casos borde adicionales: 0/3 OK
+
+== Bonus: redo() (opcional) ==
+
+[FAIL ] redo() tras un undo
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] Varios undo y varios redo (orden inverso)
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+[FAIL ] redo() recrea un dato que habia sido deshecho
+        -> Excepcion inesperada NameError: name 'ArrayQueue' is not defined (en __init__, linea 20)
+
+   Bonus: redo() (opcional): 0/3 OK
+
+== RESUMEN ==
+
+   Interfaz y restricciones          1/ 5 OK   4 fallo(s)
+   Pruebas obligatorias (1-17)       0/17 OK   17 fallo(s)
+   Casos borde adicionales           0/ 3 OK   3 fallo(s)
+   Bonus: redo() (opcional)          0/ 3 OK   3 fallo(s)
+
+   Total sin bonus: 1/25 OK
+
+== CODIGO DE LA CLASE ==
+
+_NO_EXISTIA = object()   # centinela: el dato no existia antes de este cambio
+
+
+class DataProcessor:
+    """Procesador de registros (sensor, variable, value) con historial de cambios.
+
+    Atributos:
+        _queue : ArrayQueue -- registros llegados pero aun sin procesar (FIFO).
+        _stack : ArrayStack -- historial de cambios; cada entrada es (indice, anterior).
+        _state : list       -- estado actual, lista de tuplas (sensor, variable, value).
+        _redo  : ArrayStack -- (bonus) registros deshechos que pueden rehacerse.
+
+    Excepciones:
+        ValueError -- add() con un registro mal formado o con value no numerico.
+        Empty      -- process_next()/undo()/redo() sin nada que hacer.
+        KeyError   -- current_value() de un (sensor, variable) nunca procesado.
+    """
+
+    def __init__(self):
+        self._queue = ArrayQueue()
+        self._stack = ArrayStack()
+        self._state = []
+        self._redo = ArrayStack()
+
+    # ---------------------------------------------------------------- helpers
+    def _find(self, sensor, variable):
+        """Indice de (sensor, variable) en _state, o -1 si no existe. O(k)."""
+        for i, (s, v, _) in enumerate(self._state):
+            if s == sensor and v == variable:
+                return i
+        return -1
+
+    def _apply(self, record):
+        """Aplica record al estado y apila en el historial como deshacerlo."""
+        sensor, variable, _ = record
+        i = self._find(sensor, variable)
+        if i == -1:
+            self._stack.push((len(self._state), _NO_EXISTIA))
+            self._state.append(record)
+        else:
+            self._stack.push((i, self._state[i]))
+            self._state[i] = record
+
+    # ------------------------------------------------------------- operaciones
+    def add(self, record):
+        """Encola record sin procesarlo. Lanza ValueError si esta mal formado."""
+        if not isinstance(record, (tuple, list)) or len(record) != 3:
+            raise ValueError(f"el registro debe tener exactamente 3 componentes: {record!r}")
+        value = record[2]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"value debe ser numerico (int o float): {value!r}")
+        self._queue.enqueue(tuple(record))
+
+    def process_next(self):
+        """Procesa y devuelve el siguiente registro pendiente (FIFO).
+
+        Lanza Empty si no hay registros pendientes.
+        """
+        record = self._queue.dequeue()      # Empty si la cola esta vacia
+        self._apply(record)
+        self._redo = ArrayStack()           # un cambio nuevo invalida el "futuro"
+        return record
+
+    def undo(self):
+        """Deshace el ultimo cambio hecho por process_next()/redo() (LIFO).
+
+        Lanza Empty si no hay historial.
+        """
+        indice, anterior = self._stack.pop()    # Empty si no hay historial
+        self._redo.push(self._state[indice])    # guarda lo deshecho para redo()
+        if anterior is _NO_EXISTIA:
+            self._state.pop()                   # era el ultimo creado (orden LIFO)
+        else:
+            self._state[indice] = anterior
+
+    def pending(self):
+        """Numero de registros que aun esperan ser procesados."""
+        return len(self._queue)
+
+    def current_value(self, sensor, variable):
+        """Valor actual de (sensor, variable). Lanza KeyError si nunca se proceso."""
+        i = self._find(sensor, variable)
+        if i == -1:
+            raise KeyError((sensor, variable))
+        return self._state[i][2]
+
+    # ------------------------------------------------------------------ bonus
+    def redo(self):
+        """Vuelve a aplicar el ultimo cambio deshecho. Lanza Empty si no hay."""
+        record = self._redo.pop()               # Empty si no hay nada que rehacer
+        self._apply(record)                     # reapila su entrada en el historial
+
+    # ------------------------------------------------------------- inspeccion
+    def snapshot(self):
+        """Copia del estado actual (para pruebas; no expone _state)."""
+        return list(self._state)
+
+== INTEGRIDAD ==
+SHA256 codigo de la clase : a24155936d40a87ebf241b8199bc27f85fca3760c152a41d6432563cbc4f7fa5
+SHA256 de este informe    : 776c3cfff9bcec2a45a86aebf1ac4e5de6017ddbf47992341cd1b17332acd730
